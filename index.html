@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thí nghiệm ảo: Dây Đai Ốc Galileo - Khảo sát Rơi Tự Do qua Tiết Tấu Âm Thanh</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Inter hiện đại từ Google Fonts hoặc fallback hệ thống -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 1. Header ứng dụng -->
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="2" x2="12" y2="12"></line>
+                    <line x1="12" y1="12" x2="16" y2="16"></line>
+                </svg>
+            </div>
+            <div class="brand-text">
+                <h1>THÍ NGHIỆM ẢO: DÂY ĐAI ỐC GALILEO</h1>
+                <p>Khảo sát quy luật rơi tự do s = ½gt² bằng nhịp điệu âm thanh va chạm</p>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <!-- Đồng hồ đo thời gian thực -->
+            <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg" style="display:flex; align-items:center; gap:0.5rem; background:#0f172a; border:1px solid #334155; padding:0.4rem 0.8rem; border-radius:8px;">
+                <span style="font-size:0.75rem; color:#94a3b8; font-weight:600;">THỜI GIAN RƠI (t):</span>
+                <span id="liveTimer" style="font-family:'JetBrains Mono', monospace; font-weight:700; color:#38bdf8; font-size:1.05rem;">0.000 s</span>
+            </div>
+
+            <!-- Nút bật/tắt âm nhanh -->
+            <button id="btnToggleMute" class="btn-secondary" title="Bật/Tắt âm thanh" style="padding:0.45rem 0.65rem;">
+                <svg width="20" height="20" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- 2. Không gian thí nghiệm chính -->
+    <main class="app-container">
+        <!-- Cột Trái: Canvas Mô Phỏng Phòng Lab -->
+        <section class="card sim-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    Khung cảnh thí nghiệm thả rơi
+                </div>
+                <div style="font-size:0.75rem; color:#94a3b8;">
+                    Độ cao giá treo: <span style="color:#ffffff; font-weight:600;">2.5 mét</span>
+                </div>
+            </div>
+            <div class="card-body" style="padding:0.75rem;">
+                <div class="canvas-container">
+                    <canvas id="simCanvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cột Phải: Bảng Điều Khiển, Băng Ghi Nhịp Điệu & Số Liệu -->
+        <section class="right-panel">
+            <!-- 2.1. Thanh điều khiển chính -->
+            <div class="action-bar">
+                <button id="btnDrop" class="btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    Thả dây (Bắt đầu)
+                </button>
+
+                <button id="btnPause" class="btn-secondary" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                    Tạm dừng
+                </button>
+
+                <button id="btnReset" class="btn-secondary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                    Đặt lại
+                </button>
+
+                <!-- Bộ chọn chế độ so sánh -->
+                <div class="mode-switch-group">
+                    <label class="mode-switch-item" title="Thả đồng thời cả 2 sợi dây cạnh nhau">
+                        <input type="radio" name="expMode" value="both" checked>
+                        <span>So sánh cả 2 dây</span>
+                    </label>
+                    <label class="mode-switch-item" title="Chỉ thả sợi dây có đai ốc tỉ lệ bình phương t²">
+                        <input type="radio" name="expMode" value="square">
+                        <span>Chỉ Dây tỉ lệ t²</span>
+                    </label>
+                    <label class="mode-switch-item" title="Chỉ thả sợi dây có đai ốc cách đều 40cm">
+                        <input type="radio" name="expMode" value="equal">
+                        <span>Chỉ Dây cách đều</span>
+                    </label>
+                </div>
+
+                <!-- Bộ chọn tốc độ làm chậm (Slow-motion) -->
+                <div style="display:flex; align-items:center; gap:0.4rem; margin-left:auto;">
+                    <span style="font-size:0.75rem; color:#94a3b8; font-weight:600;">TỐC ĐỘ:</span>
+                    <div class="speed-group">
+                        <button class="speed-btn" data-speed="1.0" title="Thời gian thực (khoảng 0.68 giây - rất nhanh)">1.0x</button>
+                        <button class="speed-btn" data-speed="0.5" title="Làm chậm một nửa">0.5x</button>
+                        <button class="speed-btn active" data-speed="0.25" title="Khuyên dùng: Làm chậm 4 lần để nghe tiếng cạch cực kỳ rành rọt">0.25x ★</button>
+                        <button class="speed-btn" data-speed="0.1" title="Siêu chậm để quan sát từng chuyển động">0.1x</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.2. Thanh tinh chỉnh âm thanh & môi trường trọng lực -->
+            <div class="audio-controls">
+                <div class="control-item">
+                    <span>🔊 Kiểu âm thanh:</span>
+                    <select id="selectSoundType" class="select-custom">
+                        <option value="metal">Đai ốc kim loại (Chân thực)</option>
+                        <option value="metronome">Máy đếm nhịp Metronome (Rõ tiết tấu)</option>
+                        <option value="bell">Chuông đồng Galileo (Thanh lịch)</option>
+                        <option value="wood">Khối gỗ gõ bàn (Trầm ấm)</option>
+                    </select>
+                </div>
+
+                <div class="control-item">
+                    <span>Âm lượng:</span>
+                    <input type="range" id="sliderVolume" class="slider-custom" min="0" max="1" step="0.05" value="0.8">
+                    <span id="volumeValue" style="font-family:monospace; font-size:0.78rem; width:35px;">80%</span>
+                </div>
+
+                <button id="btnTestAudio" class="btn-secondary" style="padding:0.35rem 0.75rem; font-size:0.78rem;">
+                    ▶ Thử tiếng cạch
+                </button>
+
+                <div class="control-item" style="margin-left:auto;">
+                    <span>Trọng trường g:</span>
+                    <select id="gSelect" class="select-custom">
+                        <option value="9.8" selected>Trái Đất (9.8 m/s²)</option>
+                        <option value="10.0">Làm tròn (10 m/s²)</option>
+                        <option value="1.62">Mặt Trăng (1.62 m/s²)</option>
+                        <option value="3.72">Sao Hỏa (3.72 m/s²)</option>
+                        <option value="custom">Tự nhập số...</option>
+                    </select>
+                    <input type="number" id="customGInput" class="select-custom hidden" style="width:70px;" value="9.8" step="0.1" min="0.1" max="50">
+                </div>
+            </div>
+
+            <!-- 2.3. Băng Ghi Nhịp Điệu Âm Thanh (Rhythm Audio Track) -->
+            <div class="card timeline-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M2 12h5l2-8 5 16 3-8h5"></path></svg>
+                        Băng Ghi Nhịp Điệu Âm Thanh (Rhythm Track Visualizer)
+                    </div>
+                    <div style="font-size:0.75rem; color:#94a3b8;">
+                        Trục thời gian t (0 → 0.8 giây)
+                    </div>
+                </div>
+                <div class="card-body" style="padding:0.75rem;">
+                    <div class="timeline-wrap">
+                        <canvas id="timelineCanvas"></canvas>
+                    </div>
+
+                    <!-- Hộp kết luận tự động hiện ra sau khi thí nghiệm hoàn tất -->
+                    <div id="summaryVerdict" style="margin-top:0.75rem;"></div>
+                </div>
+            </div>
+
+            <!-- 2.4. Khung Tab: Bảng Số Liệu | Đồ Thị Phân Tích | Ý Nghĩa Khoa Học -->
+            <div class="card">
+                <div class="tabs-header">
+                    <button class="tab-btn active" data-tab="tabTable">📊 Bảng Số Liệu Chi Tiết</button>
+                    <button class="tab-btn" data-tab="tabGraph">📈 Đồ Thị s-t & Nhịp Δt</button>
+                    <button class="tab-btn" data-tab="tabTheory">💡 Bí Ẩn Galileo & Lịch Sử</button>
+                </div>
+
+                <!-- Tab 1: Bảng Số Liệu -->
+                <div id="tabTable" class="tab-content active">
+                    <div class="tables-grid">
+                        <!-- Bảng Dây tỉ lệ t^2 -->
+                        <div id="wrapTableSquare" class="table-box">
+                            <div class="table-box-header">
+                                <div style="font-weight:700; color:#38bdf8; font-size:0.88rem; display:flex; align-items:center; gap:0.4rem;">
+                                    <span style="display:inline-block; width:10px; height:10px; border-radius:2px; background:#38bdf8;"></span>
+                                    DÂY TỈ LỆ t² (s = k·n²)
+                                </div>
+                                <span style="font-size:0.72rem; color:#94a3b8;">k = 9 cm</span>
+                            </div>
+                            <table class="table-custom" id="tableSquare">
+                                <thead>
+                                    <tr>
+                                        <th>Đai ốc</th>
+                                        <th>Vị trí s</th>
+                                        <th>Thời điểm t</th>
+                                        <th>Nhịp Δt</th>
+                                        <th>Vận tốc v</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <div style="margin-top:0.6rem; font-size:0.75rem; color:#38bdf8; background:rgba(56,189,248,0.08); padding:0.4rem 0.6rem; border-radius:6px;">
+                                ✦ <strong>Quy luật:</strong> Mọi khoảng thời gian <code class="font-mono">Δt = const ≈ 0.136 s</code> (tiếng cạch gõ đều như nhịp tim).
+                            </div>
+                        </div>
+
+                        <!-- Bảng Dây cách đều -->
+                        <div id="wrapTableEqual" class="table-box">
+                            <div class="table-box-header">
+                                <div style="font-weight:700; color:#fb923c; font-size:0.88rem; display:flex; align-items:center; gap:0.4rem;">
+                                    <span style="display:inline-block; width:10px; height:10px; border-radius:2px; background:#fb923c;"></span>
+                                    DÂY CÁCH ĐỀU (s = n·d)
+                                </div>
+                                <span style="font-size:0.72rem; color:#94a3b8;">d = 40 cm</span>
+                            </div>
+                            <table class="table-custom" id="tableEqual">
+                                <thead>
+                                    <tr>
+                                        <th>Đai ốc</th>
+                                        <th>Vị trí s</th>
+                                        <th>Thời điểm t</th>
+                                        <th>Nhịp Δt</th>
+                                        <th>Vận tốc v</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <div style="margin-top:0.6rem; font-size:0.75rem; color:#fb923c; background:rgba(251,146,60,0.08); padding:0.4rem 0.6rem; border-radius:6px;">
+                                ✦ <strong>Quy luật:</strong> Khoảng thời gian <code class="font-mono">Δt</code> giảm từ 0.286s xuống 0.061s (tiếng cạch dồn dập về cuối).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Đồ Thị Phân Tích -->
+                <div id="tabGraph" class="tab-content">
+                    <div class="graph-wrap">
+                        <canvas id="analysisCanvas"></canvas>
+                    </div>
+                    <div style="margin-top:0.75rem; font-size:0.8rem; color:#94a3b8; display:flex; justify-content:space-between;">
+                        <span>🔹 <strong>Đồ thị s - t bên trái:</strong> Đường cong parabol biểu diễn định luật rơi nhanh dần đều s = ½gt².</span>
+                        <span>🔸 <strong>Đồ thị Δt bên phải:</strong> Đường nằm ngang thẳng tắp (dây t²) đối lập với đường dốc tụt (dây đều).</span>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Ý Nghĩa & Lịch Sử Thí Nghiệm Galileo -->
+                <div id="tabTheory" class="tab-content">
+                    <div class="theory-container">
+                        <h3>1. Bối cảnh lịch sử: Vì sao Galileo dùng âm thanh để đo thời gian?</h3>
+                        <p>Vào đầu thế kỷ 17 (khoảng năm 1604 - 1638), đồng hồ cơ học còn rất sơ sài và đồng hồ bấm giây kỹ thuật số chưa hề tồn tại. Để đo các khoảng thời gian tính bằng phần trăm giây khi vật rơi tự do là điều <strong>bất khả thi</strong> đối với mắt thường.</p>
+                        
+                        <div class="theory-box">
+                            <strong>Ý tưởng thiên tài của Galileo Galilei:</strong>
+                            <p>Galileo (vốn là con trai của một nhạc sĩ đại tài - Vincenzo Galilei) nhận ra rằng: <em>Tai người có khả năng cảm nhận nhịp điệu âm nhạc cực kỳ chuẩn xác</em>. Nếu hai tiếng cạch phát ra cách nhau không đều chỉ 0.05 giây, não người đã phát hiện ra ngay sự "lệch nhịp".</p>
+                            <p>Do đó, ông buộc các quả nặng lên một sợi dây sao cho khi thả rơi tự do, từng quả chạm vào mâm thiếc phát ra tiếng "cạch" đều đặn như nhịp phách âm nhạc!</p>
+                        </div>
+
+                        <h3>2. Chứng minh toán học: Quy luật số lẻ của Galileo</h3>
+                        <p>Theo định luật rơi tự do từ trạng thái nghỉ: <code class="font-mono text-sky-400">s(t) = ½ g t²</code>.</p>
+                        <p>Nếu ta muốn các tiếng cạch phát ra sau các khoảng thời gian đều đặn <code class="font-mono text-emerald-400">t = τ, 2τ, 3τ, 4τ, 5τ...</code>:</p>
+                        <ul style="padding-left:1.5rem; margin:0.5rem 0;">
+                            <li>Đai ốc 1 rơi quãng đường: <code class="font-mono">s₁ = ½ g (1τ)² = 1 · (½gτ²) = 1k</code> (ở đây k = 9 cm)</li>
+                            <li>Đai ốc 2 rơi quãng đường: <code class="font-mono">s₂ = ½ g (2τ)² = 4 · (½gτ²) = 4k = 36 cm</code></li>
+                            <li>Đai ốc 3 rơi quãng đường: <code class="font-mono">s₃ = ½ g (3τ)² = 9 · (½gτ²) = 9k = 81 cm</code></li>
+                            <li>Đai ốc 4 rơi quãng đường: <code class="font-mono">s₄ = ½ g (4τ)² = 16 · (½gτ²) = 16k = 144 cm</code></li>
+                            <li>Đai ốc 5 rơi quãng đường: <code class="font-mono">s₅ = ½ g (5τ)² = 25 · (½gτ²) = 25k = 225 cm</code></li>
+                        </ul>
+                        <p>Khoảng cách giữa các đai ốc kế tiếp nhau sẽ tỉ lệ với <strong>dãy số lẻ liên tiếp</strong>: <code class="font-mono text-amber-400">1 : 3 : 5 : 7 : 9...</code> (9cm, 27cm, 45cm, 63cm, 81cm). Đây chính là "Định luật số lẻ của Galileo".</p>
+
+                        <h3>3. Khác biệt với Dây cách đều (40cm, 80cm, 120cm...)</h3>
+                        <p>Khi các đai ốc cách đều nhau một khoảng <code class="font-mono">d = 40 cm</code>, thời điểm chạm sàn là: <code class="font-mono">tₙ = √(2·n·d / g)</code>. Vì căn bậc hai tăng chậm hơn hàm tuyến tính, khoảng cách thời gian giữa hai va chạm kế tiếp <code class="font-mono">Δtₙ = tₙ - tₙ₋₁</code> sẽ ngày càng thu hẹp lại, khiến tiếng kêu trở nên dồn dập, gấp gáp về cuối.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Nạp các file script -->
+    <script src="audio.js"></script>
+    <script src="simulation.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
