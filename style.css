@@ -105,6 +105,75 @@ body {
     }
 }
 
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    /* Stack header actions vertically */
+    .header-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    .header-actions > * {
+        width: 100%;
+        justify-content: center;
+    }
+    /* Reduce header padding */
+    .app-header {
+        padding: 0.75rem 1rem;
+    }
+    /* Scale down brand text */
+    .brand-text h1 {
+        font-size: 1rem;
+    }
+    .brand-text p {
+        font-size: 0.7rem;
+    }
+    /* Canvas container height adjusts to viewport */
+    .sim-card .card-body {
+        min-height: 40vh;
+    }
+    .canvas-container {
+        min-height: 40vh;
+    }
+    /* Right panel spacing */
+    .right-panel {
+        gap: 0.75rem;
+    }
+    /* Reduce button padding */
+    .btn-primary, .btn-secondary {
+        font-size: 0.78rem;
+        padding: 0.5rem 0.9rem;
+    }
+    .speed-btn {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.5rem;
+    }
+    .mode-switch-item span {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.6rem;
+    }
+    .audio-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .control-item {
+        justify-content: space-between;
+    }
+    .timeline-wrap, .graph-wrap {
+        height: 150px;
+    }
+    .tabs-header {
+        flex-wrap: wrap;
+    }
+    .tab-btn {
+        flex: 1 1 33%;
+        text-align: center;
+        padding: 0.6rem 0.5rem;
+        font-size: 0.78rem;
+    }
+}
+
+
 /* Cards */
 .card {
     background-color: var(--bg-card);
